@@ -49,13 +49,12 @@ func (g *clientCredentials) ConnectorID(ctx context.Context, req *Request, clien
 
 func (g *clientCredentials) Authorize(ctx context.Context, req *Request, client storage.Client, conn connectors.Connector) (Responder, error) {
 	// Build claims from the client itself — no user involved.
-	claims := storage.Claims{
-		UserID:            client.ID,
-		Username:          client.Name,
-		PreferredUsername: client.Name,
-	}
+	claims := storage.Claims{UserID: client.ID}
 	for _, scope := range req.Scopes {
 		switch scope {
+		case tokens.ScopeProfile:
+			claims.Username = client.Name
+			claims.PreferredUsername = client.Name
 		case tokens.ScopeGroups:
 			if client.ClientCredentialsClaims != nil {
 				claims.Groups = client.ClientCredentialsClaims.Groups
