@@ -166,6 +166,10 @@ type Client struct {
 	Secret    string `json:"secret"`
 	SecretEnv string `json:"secretEnv"`
 
+	// DefaultConnector is the connector ID that will be used for this client if the user does not select a connector.
+	// If empty, the user will be prompted to select a connector.
+	DefaultConnector string `json:"defaultConnector,omitempty"`
+
 	// A registered set of redirect URIs. When redirecting from dex to the client, the URI
 	// requested to redirect to MUST match one of these values, unless the client is "public".
 	RedirectURIs []string `json:"redirectURIs"`

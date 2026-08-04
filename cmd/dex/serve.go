@@ -159,13 +159,6 @@ func runServe(options serveOptions) error {
 		return fmt.Errorf("failed to register gRPC server metrics: %v", err)
 	}
 
-	var defaultConnectorByClientID map[string]string
-	if filePath := os.Getenv(defaultConnectorsFileEnv); filePath != "" {
-		if defaultConnectorByClientID, err = loadDefaultConnectors(filePath); err != nil {
-			return fmt.Errorf("failed to load client default connectors: %v", err)
-		}
-	}
-
 	var grpcOptions []grpc.ServerOption
 
 	allowedTLSCiphers := []uint16{
@@ -407,7 +400,6 @@ func runServe(options serveOptions) error {
 		IDTokensValidFor:           idTokensValidFor,
 		MFAProviders:               buildMFAProviders(c.MFA.Authenticators, c.Issuer, logger),
 		DefaultMFAChain:            c.MFA.DefaultMFAChain,
-		DefaultConnectorByClientID: defaultConnectorByClientID,
 	}
 	if c.Expiry.AuthRequests != "" {
 		authRequests, err := time.ParseDuration(c.Expiry.AuthRequests)
@@ -887,16 +879,6 @@ func buildMFAProviders(authenticators []MFAAuthenticator, issuerURL string, logg
 		}
 	}
 	return providers
-}
-
-func loadDefaultConnectors(filePath string) (map[string]string, error) {
-	fileData, err := os.ReadFile(filePath)
-	if err != nil {
-		return nil, err
-	}
-	var defaultConnectorByClientID map[string]string
-	err = yaml.Unmarshal(fileData, &defaultConnectorByClientID)
-	return defaultConnectorByClientID, err
 }
 
 // InterceptorLogger adapts slog logger to interceptor logger.

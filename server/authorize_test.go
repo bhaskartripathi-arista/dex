@@ -349,14 +349,13 @@ func TestHandleAuthorizationDefaultConnectorByClientID(t *testing.T) {
 	ctx := t.Context()
 
 	t.Run("client with default connector redirects to it", func(t *testing.T) {
-		httpServer, s := newTestServerMultipleConnectors(t, func(c *Config) {
-			c.DefaultConnectorByClientID = map[string]string{"test-client": "mock"}
-		})
+		httpServer, s := newTestServerMultipleConnectors(t, nil)
 		defer httpServer.Close()
 
 		require.NoError(t, s.storage.CreateClient(ctx, storage.Client{
-			ID:           "test-client",
-			RedirectURIs: []string{"https://example.com/callback"},
+			ID:               "test-client",
+			RedirectURIs:     []string{"https://example.com/callback"},
+			DefaultConnector: "mock",
 		}))
 
 		rr := httptest.NewRecorder()
@@ -369,9 +368,7 @@ func TestHandleAuthorizationDefaultConnectorByClientID(t *testing.T) {
 	})
 
 	t.Run("client without default shows connector selection", func(t *testing.T) {
-		httpServer, s := newTestServerMultipleConnectors(t, func(c *Config) {
-			c.DefaultConnectorByClientID = map[string]string{"other-client": "mock"}
-		})
+		httpServer, s := newTestServerMultipleConnectors(t, nil)
 		defer httpServer.Close()
 
 		require.NoError(t, s.storage.CreateClient(ctx, storage.Client{
@@ -388,14 +385,13 @@ func TestHandleAuthorizationDefaultConnectorByClientID(t *testing.T) {
 	})
 
 	t.Run("explicit connector_id overrides default", func(t *testing.T) {
-		httpServer, s := newTestServerMultipleConnectors(t, func(c *Config) {
-			c.DefaultConnectorByClientID = map[string]string{"test-client": "mock"}
-		})
+		httpServer, s := newTestServerMultipleConnectors(t, nil)
 		defer httpServer.Close()
 
 		require.NoError(t, s.storage.CreateClient(ctx, storage.Client{
-			ID:           "test-client",
-			RedirectURIs: []string{"https://example.com/callback"},
+			ID:               "test-client",
+			RedirectURIs:     []string{"https://example.com/callback"},
+			DefaultConnector: "mock",
 		}))
 
 		rr := httptest.NewRecorder()

@@ -25,8 +25,6 @@ import (
 	"github.com/dexidp/dex/storage/sql"
 )
 
-const defaultConnectorsFileEnv string = "DEFAULT_CONNECTORS_FILE"
-
 func configUnmarshaller(b []byte, v interface{}) error {
 	if !featureflags.ConfigDisallowUnknownFields.Enabled() {
 		return json.Unmarshal(b, v)
