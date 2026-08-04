@@ -26,6 +26,7 @@ func (d dexAPI) GetClient(ctx context.Context, req *api.GetClientReq) (*api.GetC
 			LogoUrl:           c.LogoURL,
 			AllowedConnectors: c.AllowedConnectors,
 			SsoSharedWith:     c.SSOSharedWith,
+			DefaultConnector:  c.DefaultConnector,
 		},
 	}, nil
 }
@@ -52,6 +53,7 @@ func (d dexAPI) CreateClient(ctx context.Context, req *api.CreateClientReq) (*ap
 		LogoURL:           req.Client.LogoUrl,
 		AllowedConnectors: req.Client.AllowedConnectors,
 		SSOSharedWith:     req.Client.SsoSharedWith,
+		DefaultConnector:  req.Client.DefaultConnector,
 	}
 	if err := d.s.CreateClient(ctx, c); err != nil {
 		if err == storage.ErrAlreadyExists {
@@ -89,6 +91,9 @@ func (d dexAPI) UpdateClient(ctx context.Context, req *api.UpdateClientReq) (*ap
 		}
 		if req.SsoSharedWith != nil {
 			old.SSOSharedWith = req.SsoSharedWith
+		}
+		if req.DefaultConnector != "" {
+			old.DefaultConnector = req.DefaultConnector
 		}
 		return old, nil
 	})
@@ -132,6 +137,7 @@ func (d dexAPI) ListClients(ctx context.Context, req *api.ListClientReq) (*api.L
 			LogoUrl:           client.LogoURL,
 			AllowedConnectors: client.AllowedConnectors,
 			SsoSharedWith:     client.SSOSharedWith,
+			DefaultConnector:  client.DefaultConnector,
 		}
 		clients = append(clients, &c)
 	}

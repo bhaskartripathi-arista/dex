@@ -4,11 +4,12 @@
   <h2 class="theme-heading">Enter User Code</h2>
   <form method="post" action="{{ .PostURL }}">
     <div class="theme-form-row">
-      {{ if( .UserCode  )}}
+      {{ if .UserCode }}
       <input tabindex="2" required id="user_code" name="user_code" type="text" class="theme-form-input" autocomplete="off" value="{{.UserCode}}" {{ if .Invalid }} autofocus {{ end }}/>
       {{ else }}
       <input tabindex="2" required id="user_code" name="user_code" type="text" class="theme-form-input" placeholder="XXXX-XXXX" autocomplete="off"  {{ if .Invalid }} autofocus {{ end }}/>
       {{ end }}
+      <input type="hidden" name="connector_id" value="{{.ConnectorID}}" />
     </div>
 
     {{ if .Invalid }}
@@ -19,5 +20,19 @@
     <button tabindex="3" id="submit-login" type="submit" class="dex-btn theme-btn--primary">Submit</button>
   </form>
 </div>
+
+<script>
+  const form = document.querySelector("form[method='post']");
+
+  form.addEventListener("submit", function() {
+    const submitButton = document.getElementById("submit-login");
+    submitButton.disabled = true;
+    submitButton.innerText = "Submitting...";
+  });
+
+  {{ if and .UserCode (not .Invalid) }}
+  form.requestSubmit();
+  {{ end }}
+</script>
 
 {{ template "footer.html" . }}

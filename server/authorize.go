@@ -67,6 +67,7 @@ func (s *Server) handleAuthorization(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	connectors = conns.Filter(connectors, client.AllowedConnectors)
+	defaultConnector := client.DefaultConnector
 
 	if len(connectors) == 0 {
 		s.renderError(r, w, http.StatusBadRequest, "No connectors available for this client.")
@@ -79,6 +80,11 @@ func (s *Server) handleAuthorization(w http.ResponseWriter, r *http.Request) {
 	// Construct a URL with all of the arguments in its query
 	connURL := url.URL{
 		RawQuery: r.Form.Encode(),
+	}
+
+	// Use the default connector, if one is configured for the client, else use empty string.
+	if defaultConnector != "" && connectorID == "" {
+		connectorID = defaultConnector
 	}
 
 	// Redirect if a client chooses a specific connector_id

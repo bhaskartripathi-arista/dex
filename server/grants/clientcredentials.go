@@ -3,7 +3,6 @@ package grants
 import (
 	"context"
 	"log/slog"
-	"net/http"
 
 	"github.com/dexidp/dex/server/connectors"
 	"github.com/dexidp/dex/server/oauth2"
@@ -44,17 +43,11 @@ func (g *clientCredentials) ScopePolicy() ScopePolicy {
 	return clientCredentialsScopePolicy
 }
 
-// ConnectorID is empty: client_credentials involves no connector.
 func (g *clientCredentials) ConnectorID(ctx context.Context, req *Request, client storage.Client) (string, *oauth2.Error) {
 	return "", nil
 }
 
 func (g *clientCredentials) Authorize(ctx context.Context, req *Request, client storage.Client, conn connectors.Connector) (Responder, error) {
-	// client_credentials requires a confidential client.
-	if client.Public {
-		return nil, &oauth2.Error{Type: oauth2.UnauthorizedClient, Description: "Public clients cannot use client_credentials grant.", Status: http.StatusBadRequest}
-	}
-
 	// Build claims from the client itself — no user involved.
 	claims := storage.Claims{UserID: client.ID}
 	for _, scope := range req.Scopes {
@@ -70,12 +63,10 @@ func (g *clientCredentials) Authorize(ctx context.Context, req *Request, client 
 	}
 
 	auth := tokens.Authorization{
-		Client: client,
-		Claims: claims,
-		Scopes: req.Scopes,
-		// Empty connector ID is unique for client credentials grant. Creating
-		// connectors with an empty ID via the config and API is prohibited.
-		ConnectorID: "",
+		Client:      client,
+		Claims:      claims,
+		Scopes:      req.Scopes,
+		ConnectorID: "client",
 		Nonce:       req.Nonce,
 	}
 	return issueTokens(ctx, g.logger, g.issuer, auth, "", false)
